@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berzsenyi Dániel – A közelítő tél</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f4ee;
+    --paper: #fdfaf4;
+    --ink: #1a1714;
+    --ink-light: #4a4540;
+    --accent: #8b3a2a;
+    --accent-light: #c0705a;
+    --line: #d4cfc4;
+    --tooltip-bg: #1a1714;
+    --tooltip-text: #f7f4ee;
+    --highlight: rgba(139, 58, 42, 0.12);
+    --highlight-hover: rgba(139, 58, 42, 0.22);
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* Subtle background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(139,58,42,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 90%, rgba(90,70,50,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    width: 100%;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .szerzo {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 0.85rem;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.6rem;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+  }
+
+  .ev {
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+  }
+
+  /* Instruction note */
+  .instrukció {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 2.5rem;
+    font-size: 0.82rem;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+
+  .instrukció svg {
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  /* Poem */
+  .vers {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2.5rem 3rem;
+    box-shadow: 0 2px 18px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .strófa {
+    margin-bottom: 1.8rem;
+  }
+  .strófa:last-child { margin-bottom: 0; }
+
+  .sor {
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.85;
+    font-style: italic;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  /* Annotated word */
+  .szo {
+    display: inline;
+    position: relative;
+    cursor: help;
+    border-bottom: 1px dotted var(--accent-light);
+    color: var(--accent);
+    font-style: italic;
+    transition: background 0.15s, color 0.15s;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  .szo:hover {
+    background: var(--highlight-hover);
+    color: var(--accent);
+  }
+
+  /* Tooltip */
+  .szo::after {
+    content: attr(data-def);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--tooltip-bg);
+    color: var(--tooltip-text);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.82rem;
+    font-style: normal;
+    line-height: 1.5;
+    padding: 0.45rem 0.75rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    max-width: min(280px, 80vw);
+    white-space: normal;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s, visibility 0.18s;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+  }
+
+  /* Tooltip arrow */
+  .szo::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--tooltip-bg);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s, visibility 0.18s;
+    z-index: 101;
+  }
+
+  .szo:hover::after,
+  .szo:hover::before,
+  .szo.aktiv::after,
+  .szo.aktiv::before {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    opacity: 0.6;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 520px) {
+    .vers { padding: 1.8rem 1.4rem; }
+    .szo::after { max-width: 200px; font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <p class="szerzo">Berzsenyi Dániel</p>
+    <h1>A közelítő tél</h1>
+    <p class="ev">1804 körül</p>
+  </header>
+
+  <p class="instrukció">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    A <span style="color:var(--accent);border-bottom:1px dotted var(--accent-light)">színes, aláhúzott szavakra</span> húzd az egeredet a magyarázathoz. Mobilon érintsd meg a szót.
+  </p>
+
+  <div class="vers">
+
+    <div class="strófa">
+      <div class="sor"><span class="szo" data-def="kis erdő, fasorokkal teli park">Hervad már ligetünk</span>, s díszei hullanak,</div>
+      <div class="sor"><span class="szo" data-def="kopár, letarolt">Tarlott</span> bokrai közt sárga levél zörög.</div>
+      <div class="sor">Nincs rózsás <span class="szo" data-def="labirintus, útvesztő (görög szó)">labyrinth</span>, s <span class="szo" data-def="illatos, kellemes illatú">balzsamos</span> illatok</div>
+      <div class="sor">Közt nem lengedez a <span class="szo" data-def="a nyugati szél megszemélyesítése a görög mitológiában">Zephyr</span>.</div>
+    </div>
+
+    <div class="strófa">
+      <div class="sor">Nincs már <span class="szo" data-def="szimfónia, zenei összhang">symphonia</span>, s zöld <span class="szo" data-def="lombsátrak – befonódott növényekkel fedett pihenőhelyek">lugasok</span> között</div>
+      <div class="sor">Nem búg <span class="szo" data-def="kis vadgalamb fajta">gerlice</span>, és a <span class="szo" data-def="fűzfák árnyékában">füzes ernyein</span></div>
+      <div class="sor">A <span class="szo" data-def="kis patak">csermely</span> <span class="szo" data-def="ibolyaillatú">violás</span> völgye nem illatoz,</div>
+      <div class="sor">S tükrét durva <span class="szo" data-def="sűrű bozót, gaz">csalét</span> fedi.</div>
+    </div>
+
+    <div class="strófa">
+      <div class="sor">A hegy <span class="szo" data-def="boltívein, ívelt oldalain">boltozatin</span> néma homály borong.</div>
+      <div class="sor">Bíbor <span class="szo" data-def="szőlővesszőin (a thürszosz eredetileg Dionüszosz jelképe, szőlőindával vagy repkénnyel körülfont, tobozban végződő pálca)">thyrsusain</span> nem mosolyog <span class="szo" data-def="szőlőfürt">gerezd</span>.</div>
+      <div class="sor">Itt nemrég az öröm víg dala harsogott:</div>
+      <div class="sor">S most minden szomorú s <span class="szo" data-def="kihalt">kiholt</span>.</div>
+    </div>
+
+    <div class="strófa">
+      <div class="sor">Oh, a <span class="szo" data-def="az idő gyors múlásának költői képe (az idő szárnyal)">szárnyas idő</span> hirtelen elrepűl,</div>
+      <div class="sor">S minden <span class="szo" data-def="alkotása, műve">míve</span> <span class="szo" data-def="eltűnő">tünő</span> szárnya körül lebeg!</div>
+      <div class="sor">Minden csak <span class="szo" data-def="látomás, tünékeny jelenség">jelenés</span>; minden az ég alatt,</div>
+      <div class="sor">Mint a kis <span class="szo" data-def="kis kék virág – neve azt jelenti: ne felejts el">nefelejcs</span>, <span class="szo" data-def="elenyészik, elmúlik">enyész</span>.</div>
+    </div>
+
+    <div class="strófa">
+      <div class="sor">Lassanként <span class="szo" data-def="ifjúságom virágai (metafora)">koszorúm bimbaja</span> elvirít,</div>
+      <div class="sor">Itt <span class="szo" data-def="hagy">hágy</span> szép tavaszom: még alig ízleli</div>
+      <div class="sor"><span class="szo" data-def="az istenek itala a görög mitológiában; átvitt értelemben: gyönyör, boldogság">Nektárját</span> ajakam, még alig <span class="szo" data-def="érintem">illetem</span></div>
+      <div class="sor">Egy-két <span class="szo" data-def="fiatal, éretlen, korai">zsenge</span> virágait.</div>
+    </div>
+
+    <div class="strófa">
+      <div class="sor">Itt hágy, s vissza se tér majd gyönyörű korom.</div>
+      <div class="sor">Nem hozhatja fel azt több <span class="szo" data-def="tavasz">kikelet</span> soha!</div>
+      <div class="sor">Sem béhunyt szememet fel nem <span class="szo" data-def="varázsolhatja">igézheti</span></div>
+      <div class="sor"><span class="szo" data-def="a költő által megénekelt szeretett nő neve">Lollim</span> barna <span class="szo" data-def="szemöldök – itt a szeretett nő szépségének jelképe">szemöldöke</span>!</div>
+    </div>
+
+  </div>
+
+  <footer>Interaktív versolvasó · oktatási segédanyag</footer>
+
+</div>
+
+<script>
+  // Touch support: tap to toggle tooltip on mobile
+  document.querySelectorAll('.szo').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isActive = this.classList.contains('aktiv');
+      document.querySelectorAll('.szo.aktiv').forEach(s => s.classList.remove('aktiv'));
+      if (!isActive) this.classList.add('aktiv');
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.szo.aktiv').forEach(s => s.classList.remove('aktiv'));
+  });
+</script>
+</body>
+</html>
